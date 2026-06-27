@@ -14,7 +14,7 @@ export const SITE = {
    * and sitemap. After you deploy, set this to your real domain/subdomain,
    * e.g. "https://toolnova.pages.dev" or "https://yourdomain.com".
    */
-  url: "https://example.com",
+  url: "https://toolmint.jumor.workers.dev",
 
   /** Default social/share image (place the file in /public). */
   ogImage: "/og-default.svg",

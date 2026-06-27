@@ -1,0 +1,53 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="unix-timestamp-converter">
+  <div class="tool-shell">
+    <div class="result-box" style="margin-bottom:18px;">
+      Current Unix time: <span id="ts-now">—</span>
+    </div>
+
+    <div class="field">
+      <label for="ts-in">Unix timestamp → date</label>
+      <input id="ts-in" type="number" placeholder="e.g. 1700000000" />
+    </div>
+    <div class="result-box" style="font-size:1rem; margin-bottom:18px;">
+      <span id="ts-date">—</span>
+    </div>
+
+    <div class="field">
+      <label for="ts-date-in">Date &amp; time → timestamp</label>
+      <input id="ts-date-in" type="datetime-local" />
+    </div>
+    <div class="result-box" style="font-size:1rem;">
+      <span id="ts-stamp">—</span>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      function tick() { $("ts-now").textContent = Math.floor(Date.now() / 1000); }
+      tick(); setInterval(tick, 1000);
+
+      $("ts-in").addEventListener("input", (ev) => {
+        const raw = ev.target.value.trim();
+        if (raw === "") { $("ts-date").textContent = "—"; return; }
+        let n = Number(raw);
+        if (!isFinite(n)) { $("ts-date").textContent = "Invalid number"; return; }
+        if (Math.abs(n) < 1e11) n = n * 1000; // seconds -> ms
+        const d = new Date(n);
+        if (isNaN(d.getTime())) { $("ts-date").textContent = "Out of range"; return; }
+        $("ts-date").textContent = "UTC: " + d.toUTCString() + "  |  Local: " + d.toLocaleString();
+      });
+
+      $("ts-date-in").addEventListener("input", (ev) => {
+        if (!ev.target.value) { $("ts-stamp").textContent = "—"; return; }
+        const d = new Date(ev.target.value);
+        const sec = Math.floor(d.getTime() / 1000);
+        $("ts-stamp").textContent = sec + " s  |  " + d.getTime() + " ms";
+      });
+    })();
+  </script>
+</ToolLayout>

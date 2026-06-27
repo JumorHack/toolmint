@@ -1,0 +1,40 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="date-difference">
+  <div class="tool-shell">
+    <div class="converter-row" style="grid-template-columns:1fr 1fr;">
+      <div class="field"><label for="dd-start">Start date</label><input id="dd-start" type="date" /></div>
+      <div class="field"><label for="dd-end">End date</label><input id="dd-end" type="date" /></div>
+    </div>
+    <div class="stat-grid" style="margin-top:6px;">
+      <div class="stat"><div class="num" id="dd-days">—</div><div class="lbl">Days</div></div>
+      <div class="stat"><div class="num" id="dd-weeks">—</div><div class="lbl">Weeks</div></div>
+      <div class="stat"><div class="num" id="dd-months">—</div><div class="lbl">Months (approx)</div></div>
+      <div class="stat"><div class="num" id="dd-years">—</div><div class="lbl">Years (approx)</div></div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const s = document.getElementById("dd-start");
+      const e = document.getElementById("dd-end");
+      const set = (id, v) => (document.getElementById(id).textContent = v);
+      const today = new Date().toISOString().slice(0, 10);
+      s.value = today; e.value = today;
+      function calc() {
+        if (!s.value || !e.value) return;
+        const a = new Date(s.value + "T00:00:00");
+        const b = new Date(e.value + "T00:00:00");
+        const days = Math.round(Math.abs(b - a) / 86400000);
+        set("dd-days", days.toLocaleString());
+        set("dd-weeks", (days / 7).toFixed(1));
+        set("dd-months", (days / 30.4375).toFixed(1));
+        set("dd-years", (days / 365.25).toFixed(2));
+      }
+      s.addEventListener("input", calc); e.addEventListener("input", calc);
+      calc();
+    })();
+  </script>
+</ToolLayout>

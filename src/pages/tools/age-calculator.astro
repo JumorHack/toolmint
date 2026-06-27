@@ -1,0 +1,42 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="age-calculator">
+  <div class="tool-shell">
+    <div class="field">
+      <label for="age-dob">Your date of birth</label>
+      <input id="age-dob" type="date" />
+    </div>
+    <div class="result-box" style="margin-top:6px;">
+      <span id="age-main">—</span>
+      <span class="small" id="age-extra"></span>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const dob = document.getElementById("age-dob");
+      const main = document.getElementById("age-main");
+      const extra = document.getElementById("age-extra");
+      function calc() {
+        if (!dob.value) { main.textContent = "—"; extra.textContent = ""; return; }
+        const b = new Date(dob.value + "T00:00:00");
+        const now = new Date();
+        if (b > now) { main.textContent = "Date is in the future"; extra.textContent = ""; return; }
+        let y = now.getFullYear() - b.getFullYear();
+        let m = now.getMonth() - b.getMonth();
+        let d = now.getDate() - b.getDate();
+        if (d < 0) { m -= 1; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+        if (m < 0) { y -= 1; m += 12; }
+        const totalDays = Math.floor((now - b) / 86400000);
+        const nb = new Date(now.getFullYear(), b.getMonth(), b.getDate());
+        if (nb < now) nb.setFullYear(now.getFullYear() + 1);
+        const untilBday = Math.ceil((nb - now) / 86400000);
+        main.textContent = `${y} years, ${m} months, ${d} days`;
+        extra.textContent = `${totalDays.toLocaleString()} days lived · next birthday in ${untilBday} day${untilBday === 1 ? "" : "s"}`;
+      }
+      dob.addEventListener("input", calc);
+    })();
+  </script>
+</ToolLayout>

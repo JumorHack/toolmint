@@ -1,0 +1,43 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="json-formatter">
+  <div class="tool-shell">
+    <div class="field">
+      <label for="jf-in">Paste your JSON</label>
+      <textarea id="jf-in" style="font-family:monospace; min-height:160px;" placeholder='{"hello":"world","items":[1,2,3]}'></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="jf-format">Beautify</button>
+      <button class="btn" id="jf-minify">Minify</button>
+      <button class="btn secondary" data-copy="#jf-out">Copy</button>
+      <span id="jf-status" style="align-self:center; font-weight:700;"></span>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label for="jf-out">Output</label>
+      <textarea id="jf-out" readonly style="font-family:monospace; min-height:200px;"></textarea>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      function run(indent) {
+        const status = $("jf-status");
+        try {
+          const obj = JSON.parse($("jf-in").value);
+          $("jf-out").value = JSON.stringify(obj, null, indent);
+          status.textContent = "✓ Valid JSON";
+          status.style.color = "var(--ok)";
+        } catch (e) {
+          $("jf-out").value = "";
+          status.textContent = "✗ " + e.message;
+          status.style.color = "var(--danger)";
+        }
+      }
+      $("jf-format").addEventListener("click", () => run(2));
+      $("jf-minify").addEventListener("click", () => run(0));
+    })();
+  </script>
+</ToolLayout>

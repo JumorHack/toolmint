@@ -1,0 +1,75 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="currency-converter">
+  <div class="tool-shell">
+    <div class="field">
+      <label for="cu-amount">Amount</label>
+      <input id="cu-amount" type="number" value="100" step="any" />
+    </div>
+    <div class="converter-row">
+      <div class="field">
+        <label for="cu-from">From</label>
+        <select id="cu-from"></select>
+      </div>
+      <button class="swap-btn" id="cu-swap" title="Swap currencies" aria-label="Swap currencies">⇄</button>
+      <div class="field">
+        <label for="cu-to">To</label>
+        <select id="cu-to"></select>
+      </div>
+    </div>
+    <div class="result-box" style="margin-top:8px;">
+      <span id="cu-result">—</span>
+      <span class="small" id="cu-meta"></span>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const currencies = {
+        AUD: "Australian Dollar", BGN: "Bulgarian Lev", BRL: "Brazilian Real", CAD: "Canadian Dollar",
+        CHF: "Swiss Franc", CNY: "Chinese Yuan", CZK: "Czech Koruna", DKK: "Danish Krone",
+        EUR: "Euro", GBP: "British Pound", HKD: "Hong Kong Dollar", HUF: "Hungarian Forint",
+        IDR: "Indonesian Rupiah", ILS: "Israeli Shekel", INR: "Indian Rupee", ISK: "Icelandic Krona",
+        JPY: "Japanese Yen", KRW: "South Korean Won", MXN: "Mexican Peso", MYR: "Malaysian Ringgit",
+        NOK: "Norwegian Krone", NZD: "New Zealand Dollar", PHP: "Philippine Peso", PLN: "Polish Zloty",
+        RON: "Romanian Leu", SEK: "Swedish Krona", SGD: "Singapore Dollar", THB: "Thai Baht",
+        TRY: "Turkish Lira", USD: "US Dollar", ZAR: "South African Rand",
+      };
+      const from = $("cu-from"), to = $("cu-to");
+      Object.keys(currencies).forEach((c) => {
+        const label = `${c} — ${currencies[c]}`;
+        from.add(new Option(label, c));
+        to.add(new Option(label, c));
+      });
+      from.value = "USD"; to.value = "EUR";
+
+      let timer;
+      async function convert() {
+        const amt = parseFloat($("cu-amount").value);
+        const f = from.value, t = to.value;
+        if (!isFinite(amt)) { $("cu-result").textContent = "—"; $("cu-meta").textContent = ""; return; }
+        if (f === t) { $("cu-result").textContent = `${amt} ${f} = ${amt} ${t}`; $("cu-meta").textContent = "Same currency"; return; }
+        $("cu-result").textContent = "Loading…"; $("cu-meta").textContent = "";
+        try {
+          const res = await fetch(`https://api.frankfurter.app/latest?amount=${amt}&from=${f}&to=${t}`);
+          if (!res.ok) throw new Error("rate service unavailable");
+          const data = await res.json();
+          const val = data.rates[t];
+          $("cu-result").textContent = `${amt.toLocaleString()} ${f} = ${val.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${t}`;
+          $("cu-meta").textContent = `Rate as of ${data.date} · 1 ${f} = ${(val / amt).toFixed(4)} ${t}`;
+        } catch (e) {
+          $("cu-result").textContent = "Could not load live rates";
+          $("cu-meta").textContent = "Please check your connection and try again.";
+        }
+      }
+      $("cu-amount").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(convert, 400); });
+      from.addEventListener("change", convert);
+      to.addEventListener("change", convert);
+      $("cu-swap").addEventListener("click", () => { const a = from.value; from.value = to.value; to.value = a; convert(); });
+      convert();
+    })();
+  </script>
+</ToolLayout>

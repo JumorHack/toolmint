@@ -35,6 +35,9 @@ export const SITE = {
 
   /** Optional Google Analytics 4 id, e.g. "G-XXXXXXXXXX". "" disables it. */
   ga4Id: "",
+
+  /** Google Search Console verification code (the content="" value). "" disables it. */
+  googleVerification: "ekNIc79yoYXbScifUOoTtJ9gIZodt2kOulEtui0fUi8",
 } as const;
 
 export type SiteConfig = typeof SITE;

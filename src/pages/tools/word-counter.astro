@@ -1,0 +1,49 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="word-counter">
+  <div class="tool-shell">
+    <div class="field">
+      <label for="wc-text">Paste or type your text</label>
+      <textarea id="wc-text" placeholder="Start typing or paste your text here..."></textarea>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="num" id="wc-words">0</div><div class="lbl">Words</div></div>
+      <div class="stat"><div class="num" id="wc-chars">0</div><div class="lbl">Characters</div></div>
+      <div class="stat"><div class="num" id="wc-sentences">0</div><div class="lbl">Sentences</div></div>
+      <div class="stat"><div class="num" id="wc-read">0s</div><div class="lbl">Reading time</div></div>
+    </div>
+    <div class="stat-grid" style="margin-top:12px;">
+      <div class="stat"><div class="num" id="wc-chars-ns">0</div><div class="lbl">Chars (no spaces)</div></div>
+      <div class="stat"><div class="num" id="wc-paragraphs">0</div><div class="lbl">Paragraphs</div></div>
+      <div class="stat"><div class="num" id="wc-lines">0</div><div class="lbl">Lines</div></div>
+      <div class="stat"><div class="num" id="wc-unique">0</div><div class="lbl">Unique words</div></div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const ta = document.getElementById("wc-text");
+      const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+      function update() {
+        const t = ta.value;
+        const words = t.trim().match(/\S+/g) || [];
+        const wc = words.length;
+        set("wc-words", wc);
+        set("wc-chars", t.length);
+        set("wc-chars-ns", t.replace(/\s/g, "").length);
+        set("wc-sentences", (t.match(/[^.!?]+[.!?]+/g) || []).length);
+        set("wc-paragraphs", t.split(/\n{2,}/).filter((p) => p.trim()).length);
+        set("wc-lines", t === "" ? 0 : t.split(/\n/).length);
+        const uniq = new Set(words.map((w) => w.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "")));
+        uniq.delete("");
+        set("wc-unique", uniq.size);
+        const secs = Math.ceil((wc / 200) * 60);
+        set("wc-read", secs < 60 ? secs + "s" : Math.floor(secs / 60) + "m " + (secs % 60) + "s");
+      }
+      ta.addEventListener("input", update);
+      update();
+    })();
+  </script>
+</ToolLayout>

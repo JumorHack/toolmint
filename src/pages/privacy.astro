@@ -1,0 +1,77 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import { SITE } from "../site.config";
+const updated = new Date().toISOString().slice(0, 10);
+---
+
+<BaseLayout
+  title={`Privacy Policy — ${SITE.name}`}
+  description={`How ${SITE.name} handles data, cookies and advertising.`}
+>
+  <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Privacy Policy" }]} />
+  <section class="page-head container"><h1>Privacy Policy</h1>
+    <p class="lead">Last updated: {updated}</p>
+  </section>
+  <section class="section container prose">
+    <p>
+      This Privacy Policy explains how {SITE.name} ("we", "us") handles
+      information when you use our website. We are committed to protecting your
+      privacy and keeping things simple.
+    </p>
+
+    <h2>Information we collect</h2>
+    <p>
+      The tools on this site run in your browser. Text, numbers and other input
+      you enter into our converters and tools are processed locally on your
+      device and are <strong>not</strong> sent to or stored on our servers.
+    </p>
+    <p>
+      We may collect anonymous, aggregated usage statistics (such as which pages
+      are visited) through privacy-respecting analytics to help us improve the
+      site. This data does not identify you personally.
+    </p>
+
+    <h2>Cookies</h2>
+    <p>
+      We may use cookies and similar technologies to remember preferences and to
+      support analytics and advertising. You can control or delete cookies in
+      your browser settings at any time.
+    </p>
+
+    <h2>Advertising and Google AdSense</h2>
+    <p>
+      We may display ads served by Google AdSense. Third-party vendors,
+      including Google, use cookies to serve ads based on a user's prior visits
+      to this and other websites. Google's use of advertising cookies enables it
+      and its partners to serve ads to you based on your visit to this site
+      and/or other sites on the Internet.
+    </p>
+    <p>
+      You may opt out of personalised advertising by visiting
+      <a href="https://www.google.com/settings/ads" rel="nofollow noopener" target="_blank">Google Ads Settings</a>.
+      You can also learn more about how Google uses data at
+      <a href="https://policies.google.com/technologies/partner-sites" rel="nofollow noopener" target="_blank">Google's partner sites page</a>,
+      or opt out of third-party vendor cookies at
+      <a href="https://www.aboutads.info/choices/" rel="nofollow noopener" target="_blank">aboutads.info</a>.
+    </p>
+
+    <h2>Children's privacy</h2>
+    <p>
+      This site is intended for a general audience and does not knowingly collect
+      personal information from children.
+    </p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      We may update this Privacy Policy from time to time. Any changes will be
+      posted on this page with an updated revision date.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      If you have any questions about this Privacy Policy, please contact us at
+      <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+    </p>
+  </section>
+</BaseLayout>

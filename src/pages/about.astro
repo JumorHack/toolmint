@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import { SITE } from "../site.config";
+---
+
+<BaseLayout
+  title={`About ${SITE.name}`}
+  description={`Learn about ${SITE.name}, a free collection of fast, privacy-friendly online converters and tools.`}
+>
+  <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "About" }]} />
+  <section class="page-head container"><h1>About {SITE.name}</h1></section>
+  <section class="section container prose">
+    <p>
+      {SITE.name} is a free collection of online converters and everyday tools
+      built to be fast, accurate and respectful of your privacy. Our goal is
+      simple: help you get a quick answer or finish a small task without ads
+      getting in the way, accounts to create, or software to install.
+    </p>
+    <h2>How it works</h2>
+    <p>
+      Almost every tool on this site runs entirely inside your web browser using
+      JavaScript. That means when you convert units, count words or generate a
+      password, the calculation happens on your own device and your data is never
+      uploaded to a server.
+    </p>
+    <h2>Our principles</h2>
+    <ul>
+      <li><strong>Free for everyone.</strong> No paywalls, no sign-ups.</li>
+      <li><strong>Privacy first.</strong> Your input stays on your device.</li>
+      <li><strong>Fast and lightweight.</strong> Pages load instantly on any device.</li>
+      <li><strong>Always improving.</strong> We add new tools and conversions regularly.</li>
+    </ul>
+    <h2>Contact</h2>
+    <p>
+      Have a suggestion or found an issue? We would love to hear from you on our
+      <a href="/contact/">contact page</a>.
+    </p>
+  </section>
+</BaseLayout>

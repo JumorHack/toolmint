@@ -1,0 +1,49 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="percentage-calculator">
+  <div class="tool-shell">
+    <h3 style="margin-top:0;">What is X% of Y?</h3>
+    <div class="converter-row" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="field"><label>Percent (%)</label><input id="p1-a" type="number" value="15" step="any"></div>
+      <div class="field"><label>Of value</label><input id="p1-b" type="number" value="200" step="any"></div>
+      <div class="field"><label>Result</label><div class="result-box" id="p1-r" style="font-size:1.05rem;">—</div></div>
+    </div>
+  </div>
+
+  <div class="tool-shell" style="margin-top:16px;">
+    <h3 style="margin-top:0;">X is what percent of Y?</h3>
+    <div class="converter-row" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="field"><label>Value X</label><input id="p2-a" type="number" value="25" step="any"></div>
+      <div class="field"><label>Of value Y</label><input id="p2-b" type="number" value="200" step="any"></div>
+      <div class="field"><label>Result</label><div class="result-box" id="p2-r" style="font-size:1.05rem;">—</div></div>
+    </div>
+  </div>
+
+  <div class="tool-shell" style="margin-top:16px;">
+    <h3 style="margin-top:0;">Percentage change from X to Y</h3>
+    <div class="converter-row" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="field"><label>From</label><input id="p3-a" type="number" value="120" step="any"></div>
+      <div class="field"><label>To</label><input id="p3-b" type="number" value="150" step="any"></div>
+      <div class="field"><label>Result</label><div class="result-box" id="p3-r" style="font-size:1.05rem;">—</div></div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => (isFinite(n) ? Math.round(n * 1e4) / 1e4 : "—");
+      function calc() {
+        const a1 = parseFloat($("p1-a").value), b1 = parseFloat($("p1-b").value);
+        $("p1-r").textContent = isNaN(a1) || isNaN(b1) ? "—" : fmt((a1 / 100) * b1);
+        const a2 = parseFloat($("p2-a").value), b2 = parseFloat($("p2-b").value);
+        $("p2-r").textContent = isNaN(a2) || isNaN(b2) || b2 === 0 ? "—" : fmt((a2 / b2) * 100) + "%";
+        const a3 = parseFloat($("p3-a").value), b3 = parseFloat($("p3-b").value);
+        $("p3-r").textContent = isNaN(a3) || isNaN(b3) || a3 === 0 ? "—" : ((b3 - a3) / Math.abs(a3) * 100 >= 0 ? "+" : "") + fmt(((b3 - a3) / Math.abs(a3)) * 100) + "%";
+      }
+      document.querySelectorAll('input[type="number"]').forEach((i) => i.addEventListener("input", calc));
+      calc();
+    })();
+  </script>
+</ToolLayout>

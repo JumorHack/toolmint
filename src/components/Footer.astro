@@ -1,0 +1,44 @@
+---
+import { SITE } from "../site.config";
+import { categories } from "../lib/conversions";
+import { tools } from "../data/tools";
+
+const year = new Date().getFullYear();
+const topTools = tools.slice(0, 5);
+const topCats = categories.slice(0, 5);
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="cols">
+      <div>
+        <h4>{SITE.name}</h4>
+        <p style="max-width: 320px; margin: 0;">
+          {SITE.tagline}. Fast, free, privacy-friendly tools that run entirely in
+          your browser — no sign-up, no uploads.
+        </p>
+      </div>
+      <div>
+        <h4>Converters</h4>
+        {topCats.map((c) => (
+          <a href={`/category/${c.id}/`}>{c.name}</a>
+        ))}
+      </div>
+      <div>
+        <h4>Popular Tools</h4>
+        {topTools.map((t) => (
+          <a href={`/tools/${t.id}/`}>{t.name}</a>
+        ))}
+      </div>
+    </div>
+    <div class="legal">
+      <span>© {year} {SITE.name}. All rights reserved.</span>
+      <span>
+        <a href="/about/" style="display:inline; margin-right:14px;">About</a>
+        <a href="/contact/" style="display:inline; margin-right:14px;">Contact</a>
+        <a href="/privacy/" style="display:inline; margin-right:14px;">Privacy</a>
+        <a href="/terms/" style="display:inline;">Terms</a>
+      </span>
+    </div>
+  </div>
+</footer>

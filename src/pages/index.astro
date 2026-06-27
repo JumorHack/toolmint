@@ -1,0 +1,131 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AdSlot from "../components/AdSlot.astro";
+import { SITE } from "../site.config";
+import { categories, allPairs } from "../lib/conversions";
+import { tools } from "../data/tools";
+
+const totalPages = allPairs().length + tools.length;
+
+const popularSlugs = [
+  "centimeters-to-inches",
+  "kilograms-to-pounds",
+  "celsius-to-fahrenheit",
+  "miles-to-kilometers",
+  "megabytes-to-gigabytes",
+  "liters-to-gallons",
+  "feet-to-meters",
+  "pounds-to-kilograms",
+  "fahrenheit-to-celsius",
+  "inches-to-centimeters",
+];
+const pairs = allPairs();
+const popular = popularSlugs
+  .map((s) => pairs.find((p) => p.slug === s))
+  .filter(Boolean);
+
+const description = `${SITE.tagline}. ${totalPages}+ fast, free and privacy-friendly unit converters and online tools that run entirely in your browser — no sign-up, no uploads.`;
+---
+
+<BaseLayout title={`${SITE.name} — ${SITE.tagline}`} description={description}>
+  <section class="hero container">
+    <h1>Free Online <span class="gradient-text">Converters & Tools</span></h1>
+    <p>
+      {totalPages}+ instant unit converters and handy utilities. 100% free,
+      no sign-up, and everything runs privately in your browser.
+    </p>
+    <div class="search-wrap">
+      <input
+        id="site-search"
+        class="search-input"
+        type="text"
+        placeholder="Search tools — e.g. kg to lb, word counter, password…"
+        autocomplete="off"
+        aria-label="Search tools"
+      />
+    </div>
+  </section>
+
+  <div class="container">
+    <AdSlot label="Advertisement (top)" />
+  </div>
+
+  <section class="section container">
+    <h2>Popular conversions</h2>
+    <p class="sub">The most-searched conversions, one tap away.</p>
+    <div class="chips">
+      {popular.map((p) => (
+        <a class="chip js-search-item" href={`/convert/${p.slug}/`}
+           data-text={`${p.from.name} ${p.to.name} ${p.from.symbol} ${p.to.symbol} ${p.category.name}`.toLowerCase()}>
+          {p.from.name} → {p.to.name}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Unit converters</h2>
+    <p class="sub">Pick a category to see every conversion.</p>
+    <div class="grid cols-4">
+      {categories.map((c) => (
+        <a class="card js-search-item" href={`/category/${c.id}/`}
+           data-text={`${c.name} ${c.units.map((u) => u.name).join(" ")}`.toLowerCase()}>
+          <span class="tag">{c.units.length} units</span>
+          <h3>{c.name}</h3>
+          <p>{c.blurb}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Handy tools</h2>
+    <p class="sub">Everyday utilities that just work.</p>
+    <div class="grid cols-3">
+      {tools.map((t) => (
+        <a class="card js-search-item" href={`/tools/${t.id}/`}
+           data-text={`${t.name} ${t.keywords.join(" ")}`.toLowerCase()}>
+          <span class="tag">Tool</span>
+          <h3>{t.name}</h3>
+          <p>{t.short}</p>
+        </a>
+      ))}
+    </div>
+    <p id="no-results" style="display:none; color:var(--muted); margin-top:18px;">
+      No tools match your search. Try a different keyword.
+    </p>
+  </section>
+
+  <section class="section container prose">
+    <h2>Why {SITE.name}?</h2>
+    <p>
+      {SITE.name} is a growing collection of free online converters and tools
+      designed to be fast, accurate and respectful of your privacy. Every tool
+      runs entirely in your browser, which means your data is never uploaded to a
+      server. There is nothing to install and no account to create.
+    </p>
+    <p>
+      Whether you need to convert kilograms to pounds, Celsius to Fahrenheit or
+      megabytes to gigabytes, count the words in an essay, generate a strong
+      password, or calculate a percentage, you will find a simple, reliable tool
+      here that loads instantly and works on any device.
+    </p>
+  </section>
+
+  <script is:inline>
+    const input = document.getElementById("site-search");
+    const items = Array.from(document.querySelectorAll(".js-search-item"));
+    const noResults = document.getElementById("no-results");
+    input?.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      let shown = 0;
+      items.forEach((el) => {
+        const hay = el.getAttribute("data-text") || "";
+        const match = q === "" || hay.includes(q);
+        el.style.display = match ? "" : "none";
+        if (match) shown++;
+      });
+      if (noResults) noResults.style.display = shown === 0 ? "block" : "none";
+    });
+  </script>
+</BaseLayout>

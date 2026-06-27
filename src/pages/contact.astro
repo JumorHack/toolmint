@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import { SITE } from "../site.config";
+---
+
+<BaseLayout
+  title={`Contact ${SITE.name}`}
+  description={`Get in touch with the ${SITE.name} team with feedback, suggestions or bug reports.`}
+>
+  <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Contact" }]} />
+  <section class="page-head container"><h1>Contact Us</h1></section>
+  <section class="section container prose">
+    <p>
+      We welcome your feedback, feature requests and bug reports. The best way to
+      reach the {SITE.name} team is by email:
+    </p>
+    <p style="font-size:1.15rem;">
+      <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+    </p>
+    <p>
+      We read every message and typically reply within a few business days. If
+      you are reporting a problem with a specific tool, please include the page
+      address and a short description of what happened.
+    </p>
+  </section>
+</BaseLayout>

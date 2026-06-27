@@ -1,0 +1,36 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="base64-encode-decode">
+  <div class="tool-shell">
+    <div class="field">
+      <label for="b64-in">Input</label>
+      <textarea id="b64-in" placeholder="Type text to encode, or paste Base64 to decode...">Hello, 世界! 🌍</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="b64-enc">Encode →</button>
+      <button class="btn" id="b64-dec">← Decode</button>
+      <button class="btn secondary" data-copy="#b64-out">Copy result</button>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label for="b64-out">Output</label>
+      <textarea id="b64-out" readonly></textarea>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const inp = document.getElementById("b64-in");
+      const out = document.getElementById("b64-out");
+      const enc = (s) => btoa(String.fromCharCode.apply(null, new TextEncoder().encode(s)));
+      const dec = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.trim()), (c) => c.charCodeAt(0)));
+      document.getElementById("b64-enc").addEventListener("click", () => {
+        try { out.value = enc(inp.value); } catch (e) { out.value = "Error: " + e.message; }
+      });
+      document.getElementById("b64-dec").addEventListener("click", () => {
+        try { out.value = dec(inp.value); } catch (e) { out.value = "Error: invalid Base64 input"; }
+      });
+    })();
+  </script>
+</ToolLayout>

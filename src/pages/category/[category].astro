@@ -1,0 +1,58 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import { SITE } from "../../site.config";
+import { categories, allPairs, type Category } from "../../lib/conversions";
+
+export function getStaticPaths() {
+  return categories.map((category) => ({
+    params: { category: category.id },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props as { category: Category };
+const pairs = allPairs().filter((p) => p.category.id === category.id);
+
+const title = `${category.name} Converter — All ${category.name} Conversions`;
+const description = `${category.blurb} ${pairs.length} free ${category.name.toLowerCase()} conversions, instant and accurate.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <Breadcrumbs
+    items={[
+      { name: "Home", href: "/" },
+      { name: category.name },
+    ]}
+  />
+
+  <section class="page-head container">
+    <h1>{category.name} Converter</h1>
+    <p class="lead">{category.blurb}</p>
+  </section>
+
+  <div class="container"><AdSlot label="Advertisement" /></div>
+
+  <section class="section container">
+    <h2>All {category.name.toLowerCase()} conversions</h2>
+    <p class="sub">{pairs.length} conversions · {category.units.length} units</p>
+    <div class="grid cols-3">
+      {pairs.map((p) => (
+        <a class="card" href={`/convert/${p.slug}/`}>
+          <h3 style="font-size:.98rem;">{p.from.name} → {p.to.name}</h3>
+          <p>{p.from.symbol} to {p.to.symbol}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Other converters</h2>
+    <div class="chips" style="margin-top:12px;">
+      {categories.filter((c) => c.id !== category.id).map((c) => (
+        <a class="chip" href={`/category/${c.id}/`}>{c.name}</a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

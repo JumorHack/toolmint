@@ -1,0 +1,19 @@
+---
+import { SITE } from "../site.config";
+import { categories } from "../lib/conversions";
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a href="/" class="brand">
+      <span class="logo">{SITE.name.charAt(0)}</span>
+      <span>{SITE.name}</span>
+    </a>
+    <nav class="nav">
+      <a href="/">Home</a>
+      <a href={`/category/${categories[0].id}/`}>Converters</a>
+      <a href="/tools/">Tools</a>
+      <a href="/about/">About</a>
+    </nav>
+  </div>
+</header>

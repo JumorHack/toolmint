@@ -1,0 +1,216 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import { SITE } from "../../site.config";
+import {
+  allPairs,
+  convert,
+  formatResult,
+  REFERENCE_VALUES,
+  type Pair,
+} from "../../lib/conversions";
+
+export function getStaticPaths() {
+  return allPairs().map((pair) => ({
+    params: { slug: pair.slug },
+    props: { pair },
+  }));
+}
+
+const { pair } = Astro.props as { pair: Pair };
+const { category, from, to } = pair;
+
+const isTemp = category.type === "temperature";
+const oneTo = convert(category, from, to, 1);
+const reverseSlug = `${to.id}-to-${from.id}`;
+
+// Formula text
+function formulaText(): string {
+  if (!isTemp) {
+    const ratio = (from.factor as number) / (to.factor as number);
+    return `multiply the ${category.name.toLowerCase()} value by ${formatResult(ratio)}`;
+  }
+  const key = `${from.id}>${to.id}`;
+  const map: Record<string, string> = {
+    "celsius>fahrenheit": "°F = (°C × 9/5) + 32",
+    "celsius>kelvin": "K = °C + 273.15",
+    "fahrenheit>celsius": "°C = (°F − 32) × 5/9",
+    "fahrenheit>kelvin": "K = (°F − 32) × 5/9 + 273.15",
+    "kelvin>celsius": "°C = K − 273.15",
+    "kelvin>fahrenheit": "°F = (K − 273.15) × 9/5 + 32",
+  };
+  return map[key] ?? "";
+}
+
+const refRows = REFERENCE_VALUES.map((v) => ({
+  v,
+  r: formatResult(convert(category, from, to, v)),
+}));
+
+// Related conversions in the same category
+const related = allPairs()
+  .filter((p) => p.category.id === category.id && p.slug !== pair.slug)
+  .slice(0, 14);
+
+const faqs = [
+  {
+    q: `How many ${to.plural.toLowerCase()} are in a ${from.name.toLowerCase()}?`,
+    a: `There ${oneTo === 1 ? "is" : "are"} ${formatResult(oneTo)} ${to.plural.toLowerCase()} in 1 ${from.name.toLowerCase()} (${from.symbol}).`,
+  },
+  {
+    q: `How do I convert ${from.plural.toLowerCase()} to ${to.plural.toLowerCase()}?`,
+    a: isTemp
+      ? `Use the formula ${formulaText()}.`
+      : `To convert ${from.plural.toLowerCase()} to ${to.plural.toLowerCase()}, ${formulaText()}. For example, 1 ${from.symbol} = ${formatResult(oneTo)} ${to.symbol}.`,
+  },
+  {
+    q: `What is 10 ${from.plural.toLowerCase()} in ${to.plural.toLowerCase()}?`,
+    a: `10 ${from.symbol} equals ${formatResult(convert(category, from, to, 10))} ${to.symbol}.`,
+  },
+];
+
+const title = `Convert ${from.plural} to ${to.plural} (${from.symbol} to ${to.symbol})`;
+const description = `Convert ${from.plural.toLowerCase()} to ${to.plural.toLowerCase()} instantly. 1 ${from.name.toLowerCase()} = ${formatResult(oneTo)} ${to.plural.toLowerCase()}. Free ${from.symbol} to ${to.symbol} converter with formula and a reference table.`;
+
+const appSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: title,
+  url: new URL(`/convert/${pair.slug}/`, SITE.url).href,
+  applicationCategory: "UtilitiesApplication",
+  operatingSystem: "All",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={[appSchema, faqSchema]}>
+  <Breadcrumbs
+    items={[
+      { name: "Home", href: "/" },
+      { name: category.name, href: `/category/${category.id}/` },
+      { name: `${from.name} to ${to.name}` },
+    ]}
+  />
+
+  <section class="page-head container">
+    <h1>Convert {from.plural} to {to.plural}</h1>
+    <p class="lead">
+      1 {from.name.toLowerCase()} ({from.symbol}) = <strong>{formatResult(oneTo)}</strong>
+      {" "}{to.plural.toLowerCase()} ({to.symbol})
+    </p>
+  </section>
+
+  <section class="section container">
+    <div
+      id="conv"
+      class="tool-shell"
+      data-type={category.type}
+      data-from-factor={from.factor ?? ""}
+      data-to-factor={to.factor ?? ""}
+      data-from-id={from.id}
+      data-to-id={to.id}
+    >
+      <div class="converter-row">
+        <div class="field">
+          <label for="conv-input">{from.plural} ({from.symbol})</label>
+          <input id="conv-input" type="number" value="1" step="any" />
+        </div>
+        <a class="swap-btn" href={`/convert/${reverseSlug}/`} title={`Swap to ${to.name} → ${from.name}`} aria-label="Swap units">⇄</a>
+        <div class="field">
+          <label for="conv-output">{to.plural} ({to.symbol})</label>
+          <div class="result-box">
+            <span id="conv-output">{formatResult(oneTo)}</span>
+            <span style="font-size:.9rem; color:var(--muted);"> {to.symbol}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container"><AdSlot label="Advertisement" /></div>
+
+  <section class="section container prose">
+    <h2>How to convert {from.plural.toLowerCase()} to {to.plural.toLowerCase()}</h2>
+    {isTemp ? (
+      <p>Use the formula <strong>{formulaText()}</strong>. Enter any value above to convert it instantly.</p>
+    ) : (
+      <p>
+        To convert {from.plural.toLowerCase()} to {to.plural.toLowerCase()},
+        {" "}{formulaText()}. Since 1 {from.symbol} = {formatResult(oneTo)} {to.symbol},
+        you can multiply your number of {from.plural.toLowerCase()} by
+        {" "}{formatResult((from.factor as number) / (to.factor as number))} to get {to.plural.toLowerCase()}.
+      </p>
+    )}
+
+    <h2>{from.name} to {to.name} conversion table</h2>
+    <table class="ref-table">
+      <thead>
+        <tr><th>{from.plural} ({from.symbol})</th><th>{to.plural} ({to.symbol})</th></tr>
+      </thead>
+      <tbody>
+        {refRows.map((row) => (
+          <tr><td>{row.v} {from.symbol}</td><td>{row.r} {to.symbol}</td></tr>
+        ))}
+      </tbody>
+    </table>
+
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      {faqs.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Related {category.name.toLowerCase()} conversions</h2>
+    <div class="chips" style="margin-top:12px;">
+      <a class="chip" href={`/convert/${reverseSlug}/`}>{to.name} → {from.name}</a>
+      {related.map((p) => (
+        <a class="chip" href={`/convert/${p.slug}/`}>{p.from.name} → {p.to.name}</a>
+      ))}
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      const root = document.getElementById("conv");
+      if (!root) return;
+      const input = document.getElementById("conv-input");
+      const out = document.getElementById("conv-output");
+      const type = root.dataset.type;
+      const fromFactor = parseFloat(root.dataset.fromFactor);
+      const toFactor = parseFloat(root.dataset.toFactor);
+      const fromId = root.dataset.fromId;
+      const toId = root.dataset.toId;
+      const toC = (v, id) => (id === "fahrenheit" ? (v - 32) * 5 / 9 : id === "kelvin" ? v - 273.15 : v);
+      const fromC = (c, id) => (id === "fahrenheit" ? c * 9 / 5 + 32 : id === "kelvin" ? c + 273.15 : c);
+      const conv = (v) => (type === "temperature" ? fromC(toC(v, fromId), toId) : (v * fromFactor) / toFactor);
+      const fmt = (n) => {
+        if (!isFinite(n)) return "—";
+        if (n === 0) return "0";
+        const a = Math.abs(n);
+        return a < 1e-4 || a >= 1e15 ? n.toExponential(6) : n.toFixed(6).replace(/\.?0+$/, "");
+      };
+      const update = () => {
+        const v = parseFloat(input.value);
+        out.textContent = isNaN(v) ? "—" : fmt(conv(v));
+      };
+      input.addEventListener("input", update);
+      update();
+    })();
+  </script>
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import { SITE } from "../site.config";
+const updated = new Date().toISOString().slice(0, 10);
+---
+
+<BaseLayout
+  title={`Terms of Use — ${SITE.name}`}
+  description={`The terms and conditions for using ${SITE.name}.`}
+>
+  <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Terms of Use" }]} />
+  <section class="page-head container"><h1>Terms of Use</h1>
+    <p class="lead">Last updated: {updated}</p>
+  </section>
+  <section class="section container prose">
+    <p>
+      By accessing and using {SITE.name}, you agree to these Terms of Use. If you
+      do not agree, please do not use the site.
+    </p>
+    <h2>Use of the service</h2>
+    <p>
+      {SITE.name} provides free online tools and converters for general
+      informational purposes. You may use them for personal and commercial
+      purposes free of charge.
+    </p>
+    <h2>No warranty</h2>
+    <p>
+      The tools are provided "as is" without warranty of any kind. While we work
+      hard to ensure accuracy, we do not guarantee that results are error-free.
+      You should independently verify any result before relying on it for
+      important decisions. Calculators such as the BMI calculator are for general
+      information only and are not medical advice.
+    </p>
+    <h2>Limitation of liability</h2>
+    <p>
+      To the maximum extent permitted by law, {SITE.name} shall not be liable for
+      any damages arising from the use of, or inability to use, this website.
+    </p>
+    <h2>Changes</h2>
+    <p>
+      We may update these Terms from time to time. Continued use of the site
+      after changes constitutes acceptance of the revised Terms.
+    </p>
+  </section>
+</BaseLayout>

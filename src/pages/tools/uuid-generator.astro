@@ -1,0 +1,46 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="uuid-generator">
+  <div class="tool-shell">
+    <div class="converter-row" style="grid-template-columns:1fr 1fr; align-items:end;">
+      <div class="field">
+        <label for="uu-count">How many UUIDs?</label>
+        <input id="uu-count" type="number" min="1" max="100" value="5" />
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="btn" id="uu-gen">Generate</button>
+          <button class="btn secondary" data-copy="#uu-out">Copy</button>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label for="uu-out">UUIDs (v4)</label>
+      <textarea id="uu-out" readonly style="font-family:monospace; min-height:170px;"></textarea>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      function uuid() {
+        if (crypto.randomUUID) return crypto.randomUUID();
+        const b = crypto.getRandomValues(new Uint8Array(16));
+        b[6] = (b[6] & 0x0f) | 0x40;
+        b[8] = (b[8] & 0x3f) | 0x80;
+        const h = [...b].map((x) => x.toString(16).padStart(2, "0"));
+        return h.slice(0, 4).join("") + "-" + h.slice(4, 6).join("") + "-" + h.slice(6, 8).join("") + "-" + h.slice(8, 10).join("") + "-" + h.slice(10, 16).join("");
+      }
+      function gen() {
+        const n = Math.min(100, Math.max(1, parseInt(document.getElementById("uu-count").value, 10) || 1));
+        const a = [];
+        for (let i = 0; i < n; i++) a.push(uuid());
+        document.getElementById("uu-out").value = a.join("\n");
+      }
+      document.getElementById("uu-gen").addEventListener("click", gen);
+      gen();
+    })();
+  </script>
+</ToolLayout>

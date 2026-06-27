@@ -1,0 +1,31 @@
+---
+import { SITE } from "../site.config";
+
+export interface Props {
+  /** AdSense ad slot id (the number from the ad unit you create). */
+  slot?: string;
+  /** Visual label for the placeholder shown before AdSense is live. */
+  label?: string;
+}
+
+const { slot = "0000000000", label = "Advertisement" } = Astro.props;
+const live = Boolean(SITE.adsenseClient);
+---
+
+{live ? (
+  <div class="ad-slot" data-live="true">
+    <ins
+      class="adsbygoogle"
+      style="display:block"
+      data-ad-client={SITE.adsenseClient}
+      data-ad-slot={slot}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+) : (
+  <div class="ad-slot" aria-hidden="true">{label}</div>
+)}

@@ -1,0 +1,121 @@
+---
+import { SITE } from "../site.config";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Optional path override; defaults to the current page path. */
+  path?: string;
+  ogImage?: string;
+  /** JSON-LD objects to inject as <script type="application/ld+json">. */
+  jsonLd?: Record<string, any>[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  ogImage = SITE.ogImage,
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(path ?? Astro.url.pathname, SITE.url).href;
+const ogImageUrl = new URL(ogImage, SITE.url).href;
+const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
+
+// Site-wide WebSite schema (with search action) is always present.
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE.name,
+  url: SITE.url,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE.url}/?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+const schemas = [websiteSchema, ...jsonLd];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0b1020" />
+
+    {schemas.map((s) => (
+      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))}
+
+    {SITE.adsenseClient && (
+      <script
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}`}
+        crossorigin="anonymous"
+      ></script>
+    )}
+
+    {SITE.ga4Id && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${SITE.ga4Id}`}></script>
+        <script is:inline define:vars={{ ga4Id: SITE.ga4Id }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag("js", new Date());
+          gtag("config", ga4Id);
+        </script>
+      </>
+    )}
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <div class="copy-toast" id="copy-toast">Copied!</div>
+    <script is:inline>
+      // Tiny global helper: any [data-copy="#id"] button copies that element's value/text.
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-copy]");
+        if (!btn) return;
+        const sel = btn.getAttribute("data-copy");
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const text = "value" in el ? el.value : el.textContent;
+        navigator.clipboard.writeText(text || "").then(() => {
+          const t = document.getElementById("copy-toast");
+          t.classList.add("show");
+          setTimeout(() => t.classList.remove("show"), 1400);
+        });
+      });
+    </script>
+  </body>
+</html>

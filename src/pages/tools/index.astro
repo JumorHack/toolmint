@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import AdSlot from "../../components/AdSlot.astro";
+import { tools } from "../../data/tools";
+
+const title = "All Free Online Tools";
+const description =
+  "Browse all free online tools: word counter, case converter, password generator, Base64 encoder, UUID generator, BMI and percentage calculators and more. No sign-up, runs in your browser.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Tools" }]} />
+
+  <section class="page-head container">
+    <h1>All Tools</h1>
+    <p class="lead">Free, fast, privacy-friendly utilities — no sign-up required.</p>
+  </section>
+
+  <div class="container"><AdSlot label="Advertisement" /></div>
+
+  <section class="section container">
+    <div class="grid cols-3">
+      {tools.map((t) => (
+        <a class="card" href={`/tools/${t.id}/`}>
+          <span class="tag">Tool</span>
+          <h3>{t.name}</h3>
+          <p>{t.short}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,41 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="case-converter">
+  <div class="tool-shell">
+    <div class="field">
+      <label for="cc-text">Your text</label>
+      <textarea id="cc-text" placeholder="Type or paste text...">Hello world. this IS a sample sentence.</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn" data-case="upper">UPPERCASE</button>
+      <button class="btn" data-case="lower">lowercase</button>
+      <button class="btn" data-case="sentence">Sentence case</button>
+      <button class="btn" data-case="title">Title Case</button>
+      <button class="btn secondary" data-case="camel">camelCase</button>
+      <button class="btn secondary" data-case="snake">snake_case</button>
+      <button class="btn secondary" data-case="kebab">kebab-case</button>
+      <button class="btn secondary" data-copy="#cc-text">Copy</button>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const ta = document.getElementById("cc-text");
+      const words = (s) => s.match(/[A-Za-z0-9]+/g) || [];
+      const fns = {
+        upper: (s) => s.toUpperCase(),
+        lower: (s) => s.toLowerCase(),
+        sentence: (s) => s.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, (c) => c.toUpperCase()),
+        title: (s) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
+        camel: (s) => words(s.toLowerCase()).map((x, i) => (i ? x.charAt(0).toUpperCase() + x.slice(1) : x)).join(""),
+        snake: (s) => words(s.toLowerCase()).join("_"),
+        kebab: (s) => words(s.toLowerCase()).join("-"),
+      };
+      document.querySelectorAll("[data-case]").forEach((b) => {
+        b.addEventListener("click", () => { ta.value = fns[b.dataset.case](ta.value); });
+      });
+    })();
+  </script>
+</ToolLayout>

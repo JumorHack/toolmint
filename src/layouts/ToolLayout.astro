@@ -1,0 +1,82 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import AdSlot from "../components/AdSlot.astro";
+import { SITE } from "../site.config";
+import { getTool, tools } from "../data/tools";
+
+export interface Props {
+  toolId: string;
+}
+const { toolId } = Astro.props;
+const tool = getTool(toolId)!;
+
+const related = tools.filter((t) => t.id !== toolId).slice(0, 6);
+
+const title = `${tool.name} — Free Online ${tool.name}`;
+const description = tool.description;
+
+const appSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: tool.name,
+  url: new URL(`/tools/${tool.id}/`, SITE.url).href,
+  applicationCategory: "UtilitiesApplication",
+  operatingSystem: "All",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: tool.faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={[appSchema, faqSchema]}>
+  <Breadcrumbs
+    items={[
+      { name: "Home", href: "/" },
+      { name: "Tools", href: "/tools/" },
+      { name: tool.name },
+    ]}
+  />
+
+  <section class="page-head container">
+    <h1>{tool.name}</h1>
+    <p class="lead">{tool.short}</p>
+  </section>
+
+  <section class="section container">
+    <slot />
+  </section>
+
+  <div class="container"><AdSlot label="Advertisement" /></div>
+
+  <section class="section container prose">
+    <h2>About this tool</h2>
+    <p>{tool.description}</p>
+
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      {tool.faqs.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>More tools</h2>
+    <div class="chips" style="margin-top:12px;">
+      {related.map((t) => (
+        <a class="chip" href={`/tools/${t.id}/`}>{t.name}</a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

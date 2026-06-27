@@ -1,0 +1,70 @@
+---
+import ToolLayout from "../../layouts/ToolLayout.astro";
+---
+
+<ToolLayout toolId="bmi-calculator">
+  <div class="tool-shell">
+    <div class="checkbox-row" style="margin-bottom:18px;">
+      <label><input type="radio" name="bmi-unit" value="metric" checked> Metric (cm, kg)</label>
+      <label><input type="radio" name="bmi-unit" value="imperial"> Imperial (ft/in, lb)</label>
+    </div>
+
+    <div id="bmi-metric">
+      <div class="converter-row" style="grid-template-columns:1fr 1fr;">
+        <div class="field"><label for="bmi-cm">Height (cm)</label><input id="bmi-cm" type="number" value="170" step="any"></div>
+        <div class="field"><label for="bmi-kg">Weight (kg)</label><input id="bmi-kg" type="number" value="65" step="any"></div>
+      </div>
+    </div>
+
+    <div id="bmi-imperial" style="display:none;">
+      <div class="converter-row" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="field"><label for="bmi-ft">Height (ft)</label><input id="bmi-ft" type="number" value="5" step="any"></div>
+        <div class="field"><label for="bmi-in">Height (in)</label><input id="bmi-in" type="number" value="7" step="any"></div>
+        <div class="field"><label for="bmi-lb">Weight (lb)</label><input id="bmi-lb" type="number" value="143" step="any"></div>
+      </div>
+    </div>
+
+    <div class="result-box" style="margin-top:8px;">
+      <span id="bmi-val">—</span>
+      <span class="small" id="bmi-cat"></span>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      function calc() {
+        const unit = document.querySelector('input[name="bmi-unit"]:checked').value;
+        let kg, m;
+        if (unit === "metric") {
+          kg = parseFloat($("bmi-kg").value);
+          m = parseFloat($("bmi-cm").value) / 100;
+        } else {
+          const lb = parseFloat($("bmi-lb").value);
+          kg = lb * 0.45359237;
+          const totalIn = (parseFloat($("bmi-ft").value) || 0) * 12 + (parseFloat($("bmi-in").value) || 0);
+          m = totalIn * 0.0254;
+        }
+        if (!kg || !m || m <= 0) { $("bmi-val").textContent = "—"; $("bmi-cat").textContent = ""; return; }
+        const bmi = kg / (m * m);
+        let cat, color;
+        if (bmi < 18.5) { cat = "Underweight"; color = "#f0b429"; }
+        else if (bmi < 25) { cat = "Healthy weight"; color = "var(--ok)"; }
+        else if (bmi < 30) { cat = "Overweight"; color = "#f0b429"; }
+        else { cat = "Obese"; color = "var(--danger)"; }
+        $("bmi-val").textContent = "BMI " + bmi.toFixed(1);
+        $("bmi-cat").textContent = cat;
+        $("bmi-cat").style.color = color;
+      }
+      function toggle() {
+        const unit = document.querySelector('input[name="bmi-unit"]:checked').value;
+        $("bmi-metric").style.display = unit === "metric" ? "" : "none";
+        $("bmi-imperial").style.display = unit === "imperial" ? "" : "none";
+        calc();
+      }
+      document.querySelectorAll('input[name="bmi-unit"]').forEach((r) => r.addEventListener("change", toggle));
+      document.querySelectorAll("#bmi-cm,#bmi-kg,#bmi-ft,#bmi-in,#bmi-lb").forEach((i) => i.addEventListener("input", calc));
+      calc();
+    })();
+  </script>
+</ToolLayout>

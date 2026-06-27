@@ -17,3 +17,9 @@ yarn-error.log*
 .chrome-home/
 .chrome-tmp/
 screenshots/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
